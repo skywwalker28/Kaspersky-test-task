@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -32,7 +31,7 @@ public class InMemoryFileIndexService implements FileIndexService {
         String content = Files.readString(path);
         Set<String> words = tokenizer.tokenizer(content);
 
-        removeFileFromIndex(path);
+        removeFile(path);
 
         fileToWords.put(path, words);
         for (String word : words) {
@@ -86,24 +85,8 @@ public class InMemoryFileIndexService implements FileIndexService {
     public Set<Path> search(String word) {
         if (word == null || word.isBlank()) return Collections.emptySet();
 
-
-        String normalizeWord = word.toLowerCase(Locale.ROOT).trim();
+        String normalizeWord = word.toLowerCase().trim();
         return Collections.unmodifiableSet(wordToFiles.getOrDefault(normalizeWord, Collections.emptySet()));
-    }
-
-    private void removeFileFromIndex(Path path) {
-        Set<String> oldWords = fileToWords.remove(path);
-        if (oldWords == null) return;
-
-        for (String word : oldWords) {
-            Set<Path> files = wordToFiles.get(word);
-            if (files != null) {
-                files.remove(path);
-                if (files.isEmpty()) {
-                    wordToFiles.remove(word, files);
-                }
-            }
-        }
     }
 
     private Path normalize(Path path) {
@@ -111,12 +94,12 @@ public class InMemoryFileIndexService implements FileIndexService {
     }
 
     private boolean isTextFile(Path path) {
-        return path.toString().toLowerCase(Locale.ROOT).endsWith(".txt");
+        return path.toString().toLowerCase().endsWith(".txt");
     }
 
     private void validateFile(Path path) {
         if (path == null) {
-            throw new IllegalArgumentException("File does not exists: " + path);
+            throw new IllegalArgumentException("File does not exists");
         }
 
         if (!Files.exists(path) || !Files.isRegularFile(path)) {

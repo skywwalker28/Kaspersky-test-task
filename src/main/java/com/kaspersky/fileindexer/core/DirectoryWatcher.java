@@ -1,7 +1,6 @@
 package com.kaspersky.fileindexer.core;
 
 import com.kaspersky.fileindexer.api.FileIndexService;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.*;
